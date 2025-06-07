@@ -999,7 +999,8 @@
   <!-- Eagle Image Section -->
   <section style="padding: 4rem 2rem; background: var(--surface-alt); text-align: center;">
     <div style="max-width: 1200px; margin: 0 auto;">
-      <img src="/assets/images/guardian-eagle.jpg" alt="Guardian Eagle watching over CENT pennies" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 20px rgba(139, 69, 19, 0.2);">
+      <img src="/assets/images/guardian-eagle.jpg" alt="Guardian Eagle watching over CENT pennies" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 20px rgba(139, 69, 19, 0.2);" id="eagle-image">
+      <audio id="eagle-sound" src="/assets/sounds/eagle-scream.mp3" preload="auto"></audio>
     </div>
   </section>
 
@@ -1169,6 +1170,15 @@
         counter.textContent = current.toLocaleString();
       }, 3000 + Math.random() * 2000); // Random intervals for organic feel
     }
+
+    // Eagle sound effect
+    const eagleImage = document.getElementById('eagle-image');
+    const eagleSound = document.getElementById('eagle-sound');
+    
+    eagleImage.addEventListener('mouseenter', () => {
+      eagleSound.currentTime = 0; // Reset sound to start
+      eagleSound.play();
+    });
 
     // Countdown timer
     function startCountdown() {
