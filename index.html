@@ -89,10 +89,16 @@
       border-bottom: 1px solid rgba(186, 106, 43, 0.18);
     }
 
+    @supports (padding-top: env(safe-area-inset-top)) {
+      nav {
+        padding-top: calc(clamp(0.85rem, 3vw, 1.25rem) + env(safe-area-inset-top));
+      }
+    }
+
     .nav-container {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 1rem 2rem;
+      padding: clamp(0.85rem, 3vw, 1.25rem) clamp(1rem, 5vw, 2rem);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -181,7 +187,7 @@
     }
 
     .hero {
-      padding: 6rem 2rem 5rem;
+      padding: clamp(4.5rem, 10vw, 6rem) clamp(1.5rem, 6vw, 2rem) 5rem;
       position: relative;
     }
 
@@ -302,7 +308,7 @@
 
     .announcement {
       background: linear-gradient(120deg, rgba(186, 106, 43, 0.13), rgba(243, 176, 115, 0.18));
-      padding: 2.25rem 2rem;
+      padding: clamp(2rem, 6vw, 2.75rem) clamp(1.5rem, 6vw, 2rem);
       border-top: 1px solid rgba(186, 106, 43, 0.2);
       border-bottom: 1px solid rgba(186, 106, 43, 0.2);
     }
@@ -328,7 +334,7 @@
     }
 
     .stats {
-      padding: 4.5rem 2rem 4rem;
+      padding: clamp(3.5rem, 10vw, 4.5rem) clamp(1.5rem, 6vw, 2rem) 4rem;
     }
 
     .stats-container {
@@ -368,7 +374,7 @@
     }
 
     .content-section {
-      padding: 4.5rem 2rem;
+      padding: clamp(3.5rem, 10vw, 4.5rem) clamp(1.5rem, 6vw, 2rem);
       position: relative;
     }
 
@@ -590,7 +596,7 @@
     footer {
       background: rgba(15, 18, 30, 0.92);
       color: rgba(255, 255, 255, 0.82);
-      padding: 4rem 2rem 2.5rem;
+      padding: clamp(3rem, 10vw, 4rem) clamp(1.5rem, 6vw, 2rem) 2.5rem;
     }
 
     .footer-container {
@@ -678,28 +684,35 @@
     }
 
     @media (max-width: 768px) {
-      .nav-container {
-        padding: 0.85rem 1.25rem;
-      }
-
       .nav-links {
         position: fixed;
-        inset: 68px 1rem auto 1rem;
+        top: 56px;
+        left: 1rem;
+        right: 1rem;
         padding: 1.5rem;
         border-radius: 16px;
         background: rgba(253, 248, 243, 0.96);
         border: 1px solid rgba(186, 106, 43, 0.18);
         display: grid;
         gap: 1rem;
-        transform: translateY(-10px);
+        transform: translateY(-12px);
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.2s ease;
+        max-width: min(420px, calc(100% - 2rem));
+        margin: 0 auto;
+      }
+
+      @supports (top: calc(56px + env(safe-area-inset-top))) {
+        .nav-links {
+          top: calc(56px + env(safe-area-inset-top));
+        }
       }
 
       .nav-links.active {
         opacity: 1;
         pointer-events: auto;
+        transform: translateY(0);
       }
 
       .nav-links .badge-live {
@@ -711,11 +724,25 @@
       }
 
       .hero {
-        padding: 5rem 1.5rem 4rem;
+        padding: 4.5rem 1.5rem 4rem;
       }
 
       .hero h1 {
         font-size: 2.4rem;
+      }
+
+      .hero-subtitle {
+        font-size: 1.05rem;
+      }
+
+      .announcement-inner {
+        gap: 1.5rem;
+        text-align: center;
+      }
+
+      .announcement .hero-actions {
+        justify-content: center !important;
+        width: 100%;
       }
 
       .button,
@@ -744,12 +771,43 @@
         padding: 1.6rem;
       }
 
+      .news-ticker {
+        font-size: 0.75rem;
+        padding: 0.55rem 0;
+      }
+
+      .hero-details {
+        font-size: 0.9rem;
+      }
+
       .counter-number {
         font-size: 2.2rem;
       }
 
       .button,
       .share-button {
+        font-size: 0.95rem;
+      }
+
+      .footer-container {
+        gap: 1.75rem;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .hero h1 {
+        font-size: 1.85rem;
+      }
+
+      .hero-card {
+        gap: 1rem;
+      }
+
+      .hero-metric {
+        font-size: 2.4rem;
+      }
+
+      .announcement-inner p {
         font-size: 0.95rem;
       }
     }
@@ -776,7 +834,7 @@
         </div>
         ¢ENT
       </div>
-      <button class="hamburger" aria-label="Toggle menu">
+      <button class="hamburger" type="button" aria-label="Toggle menu" aria-expanded="false">
         <span></span>
         <span></span>
         <span></span>
@@ -1073,16 +1131,21 @@
 
       if (!hamburger || !navLinks) return;
 
+      hamburger.setAttribute('aria-expanded', 'false');
+
       const toggleMenu = () => {
-        hamburger.classList.toggle('active');
-        navLinks.classList.toggle('active');
-        body.classList.toggle('menu-open');
+        const isActive = !hamburger.classList.contains('active');
+        hamburger.classList.toggle('active', isActive);
+        navLinks.classList.toggle('active', isActive);
+        body.classList.toggle('menu-open', isActive);
+        hamburger.setAttribute('aria-expanded', String(isActive));
       };
 
       const closeMenu = () => {
         hamburger.classList.remove('active');
         navLinks.classList.remove('active');
         body.classList.remove('menu-open');
+        hamburger.setAttribute('aria-expanded', 'false');
       };
 
       hamburger.addEventListener('click', (event) => {
