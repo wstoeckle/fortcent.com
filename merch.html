@@ -262,6 +262,55 @@
       text-transform: uppercase;
     }
 
+    /* Store Info & Policies */
+    .store-info {
+      padding: 0 0 80px;
+    }
+
+    .store-info h2 {
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 1.6rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+      color: var(--text);
+    }
+
+    .policy-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .policy-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 24px 28px;
+    }
+
+    .policy-card h3 {
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+
+    .policy-card p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    .policy-card a {
+      color: var(--copper);
+      text-decoration: none;
+    }
+
+    .policy-card a:hover {
+      text-decoration: underline;
+    }
+
     /* Footer */
     footer {
       border-top: 1px solid var(--border);
@@ -334,6 +383,14 @@
 
       .showcase-text .lead {
         font-size: 1rem;
+      }
+
+      .policy-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .store-info {
+        padding-bottom: 60px;
       }
 
       .shop-cta {
@@ -411,8 +468,8 @@
           </a>
 
           <p class="disclaimer">
-            Orders are fulfilled by our partner Fourthwall. We do not hold inventory.
-            Returns and customer service handled by the provider.
+            Our official storefront is fortcent-shop.fourthwall.com. Orders are
+            produced and fulfilled by our partner Fourthwall; we do not hold inventory.
           </p>
         </div>
 
@@ -421,6 +478,45 @@
             <img src="assets/images/fort-cent-seal.jpg" alt="Fort Cent - Unum Pro Uno" class="seal-image">
             <div class="seal-caption">Official Provisions</div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="store-info">
+      <h2>Store Information &amp; Policies</h2>
+      <div class="policy-grid">
+        <div class="policy-card">
+          <h3>What We Sell</h3>
+          <p>
+            CENT-branded physical merchandise: hoodies, t-shirts, dad hats, and
+            bucket hats. All items are apparel and accessories produced on demand.
+            Prices are listed in USD on each product page.
+          </p>
+        </div>
+        <div class="policy-card">
+          <h3>Ordering &amp; Payment</h3>
+          <p>
+            Orders are placed through our official storefront at
+            <a href="https://fortcent-shop.fourthwall.com/" target="_blank" rel="noopener">fortcent-shop.fourthwall.com</a>.
+            Payment is collected securely at checkout. We never see or store your card details.
+          </p>
+        </div>
+        <div class="policy-card">
+          <h3>Shipping</h3>
+          <p>
+            Items are produced on demand and shipped directly to you. Production
+            and delivery estimates are shown at checkout and confirmed in your
+            order confirmation email.
+          </p>
+        </div>
+        <div class="policy-card">
+          <h3>Returns, Refunds &amp; Support</h3>
+          <p>
+            If your order arrives damaged, misprinted, or incorrect, contact
+            support through the storefront and we will make it right with a
+            replacement or refund. Order status, cancellations, and other support
+            requests are also handled through the shop's contact form.
+          </p>
         </div>
       </div>
     </div>
