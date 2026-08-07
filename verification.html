@@ -346,14 +346,32 @@
           <h3>Upgradeable program</h3>
           <p>
             Minting program: <code>8ut4mptpdzQ7qkEfuVsiT5QR9kADKZTszcpKCYmmfaXg</code>.
-            The program remains upgradeable.
+            The program remains upgradeable. Its upgrade authority is a Squads vault governed by
+            a 2-of-3 voting threshold.
           </p>
         </div>
         <div class="info-card">
           <h3>Mutable metadata</h3>
           <p>
-            Token metadata remains mutable. Program upgrade and metadata update authority:
+            Token metadata remains mutable. The same 2-of-3 Squads vault controls program upgrades
+            and metadata updates. Vault authority:
             <code>A5v2A5mwwM7a2S3JX2h9aHQ7BSBQEoje5TesFWFE3tUy</code>.
+          </p>
+        </div>
+        <div class="info-card">
+          <h3>2-of-3 voter approvals</h3>
+          <p>
+            The controlling Squads v4 account requires two approvals from three voting members.
+            Individual member addresses are intentionally not republished here; the threshold and
+            permissions can be verified on-chain.
+          </p>
+        </div>
+        <div class="info-card">
+          <h3>Liquidity is multisig-controlled, not locked</h3>
+          <p>
+            All four current Raydium CENT/USDC concentrated-liquidity position NFTs are held by the
+            same Squads vault. Withdrawing or repositioning project liquidity therefore follows the
+            2-of-3 approval path. The positions are not time-locked and may be rebalanced when needed.
           </p>
         </div>
       </div>
