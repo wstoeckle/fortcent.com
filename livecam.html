@@ -73,6 +73,36 @@
       text-decoration: underline;
     }
 
+    [hidden] {
+      display: none !important;
+    }
+
+    /* The player sits under the outage screen so it can load and report
+       whether the channel is live without being display: none. */
+    #feed-player {
+      position: absolute;
+      inset: 0;
+      aspect-ratio: auto;
+      border-radius: 0;
+    }
+
+    .feed-outage {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: #141210;
+    }
+
+    html[data-feed="live"] .when-offline,
+    html:not([data-feed="live"]) .when-live {
+      display: none;
+    }
+
+    html[data-feed="live"] .feed-lamp {
+      background: #c4473a;
+      box-shadow: 0 0 8px rgba(196, 71, 58, 0.85);
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
       .page-header {
@@ -116,37 +146,45 @@
   <div class="page-header">
     <div class="container">
       <h1>Live Vault Camera</h1>
-      <p class="feed-lede">The public feed is offline. The pennies are still the reported pile. They are just not on television.</p>
+      <p class="feed-lede when-offline">The public feed is offline. The pennies are still the reported pile. They are just not on television.</p>
+      <p class="feed-lede when-live">The feed is up. That is the reported pile, on television. Watching is not an audit, but you are welcome to count along.</p>
     </div>
   </div>
 
   <div class="hoard-container">
-    <div id="feed-slot">
-      <div class="feed-monitor" id="feed-offline">
-        <div class="feed-chrome">
-          <span>Cam 01 · Vault</span>
-          <span class="feed-status"><span class="feed-lamp" aria-hidden="true"></span> Off air</span>
-        </div>
-        <div class="feed-screen" role="img" aria-label="Offline vault camera. Error 404, no signal.">
+    <div class="feed-monitor">
+      <div class="feed-chrome">
+        <span>Cam 01 · Vault</span>
+        <span class="feed-status"><span class="feed-lamp" aria-hidden="true"></span> <span id="feed-status-text">Off air</span></span>
+      </div>
+      <div class="feed-screen">
+        <div class="feed-frame" id="feed-player"></div>
+        <div class="feed-outage" id="feed-offline" role="img" aria-label="Offline vault camera. Error 404, no signal.">
           <div class="feed-static" aria-hidden="true"></div>
           <div class="feed-readout" aria-hidden="true">
             <p class="feed-code">404</p>
             <p class="feed-signal">No signal</p>
-            <p class="feed-scan">Searching for pennies<span class="feed-cursor">_</span></p>
+            <p class="feed-scan"><span id="feed-scan-text">Searching for pennies</span><span class="feed-cursor">_</span></p>
           </div>
         </div>
-        <div class="feed-chrome feed-chrome-bottom">
-          <span>Frame — — —</span>
-          <span>Ch fortcent</span>
-        </div>
+      </div>
+      <div class="feed-chrome feed-chrome-bottom">
+        <span>Frame — — —</span>
+        <span>Ch fortcent</span>
       </div>
     </div>
 
-    <p class="feed-copy">
+    <p class="feed-copy when-offline">
       The camera returned a 404. The coins did not. A dark feed is not a count,
       and a live one would not have been an audit either. The supply comparison
       is still on the <a href="transparency.html">transparency page</a>. If you
       want to look with your eyes, the vault
+      <a href="vault-visit.html">takes appointments</a>.
+    </p>
+    <p class="feed-copy when-live">
+      A live picture is not a count, and it is not an audit either. The supply
+      comparison is on the <a href="transparency.html">transparency page</a>. If
+      you want to look with your own eyes, the vault
       <a href="vault-visit.html">takes appointments</a>.
     </p>
 
@@ -187,30 +225,93 @@
     document.getElementById('mobile-nav').classList.toggle('open');
   });
 
-  var offlineMarkup = document.getElementById('feed-slot').innerHTML;
-  var showingPlayer = false;
+  var root = document.documentElement;
+  var offlineScreen = document.getElementById('feed-offline');
+  var playerBox = document.getElementById('feed-player');
+  var statusText = document.getElementById('feed-status-text');
+  var scanText = document.getElementById('feed-scan-text');
   var tryFeed = document.getElementById('try-feed');
+  var player = null;
+  var isLive = false;
+  var showingPlayer = false;
 
-  tryFeed.addEventListener('click', function() {
-    var slot = document.getElementById('feed-slot');
-    showingPlayer = !showingPlayer;
-
-    if (!showingPlayer) {
-      slot.innerHTML = offlineMarkup;
-      tryFeed.textContent = 'Try the player anyway';
-      return;
-    }
-
+  function twitchParents() {
     var host = location.hostname || 'localhost';
     var parents = ['fortcent.com', 'www.fortcent.com', 'localhost', '127.0.0.1'];
     if (parents.indexOf(host) === -1) parents.push(host);
-    var src = 'https://player.twitch.tv/?channel=fortcent&' + parents.map(function(parent) {
-      return 'parent=' + encodeURIComponent(parent);
-    }).join('&');
+    return parents;
+  }
 
-    slot.innerHTML = '<div class="feed-frame"><iframe src="' + src + '" title="CENT vault camera on Twitch" allowfullscreen></iframe></div>';
-    tryFeed.textContent = 'Show the outage again';
+  function render() {
+    var showPlayer = isLive || showingPlayer;
+    root.setAttribute('data-feed', isLive ? 'live' : 'offline');
+    offlineScreen.hidden = showPlayer;
+    statusText.textContent = isLive ? 'On air' : 'Off air';
+    tryFeed.hidden = isLive;
+    tryFeed.textContent = showingPlayer ? 'Show the outage again' : 'Try the player anyway';
+    document.title = isLive ? 'Live Vault Camera – CENT' : 'Vault Camera Offline – CENT';
+  }
+
+  // Twitch's player reports ONLINE or OFFLINE for the channel as it loads and
+  // whenever that changes, so the page shows the feed only while it streams.
+  function mountPlayer() {
+    if (player || !window.Twitch || !window.Twitch.Player) return;
+    playerBox.innerHTML = '';
+    player = new Twitch.Player('feed-player', {
+      channel: 'fortcent',
+      parent: twitchParents(),
+      width: '100%',
+      height: '100%',
+      autoplay: true,
+      muted: true
+    });
+    player.addEventListener(Twitch.Player.ONLINE, function() {
+      isLive = true;
+      render();
+    });
+    player.addEventListener(Twitch.Player.OFFLINE, function() {
+      isLive = false;
+      render();
+    });
+  }
+
+  var twitchScript = document.createElement('script');
+  twitchScript.src = 'https://player.twitch.tv/js/embed/v1.js';
+  twitchScript.async = true;
+  twitchScript.onload = mountPlayer;
+  document.head.appendChild(twitchScript);
+
+  tryFeed.addEventListener('click', function() {
+    showingPlayer = !showingPlayer;
+
+    // Without Twitch's script (blocked or still loading), use a plain embed.
+    if (showingPlayer && !player && !playerBox.firstChild) {
+      var src = 'https://player.twitch.tv/?channel=fortcent&' + twitchParents().map(function(parent) {
+        return 'parent=' + encodeURIComponent(parent);
+      }).join('&');
+      playerBox.innerHTML = '<iframe src="' + src + '" title="CENT vault camera on Twitch" allowfullscreen></iframe>';
+    }
+
+    render();
   });
+
+  var scanLines = [
+    'Searching for pennies',
+    'Checking behind the couch cushions',
+    'Asking the eagle',
+    'Jiggling the cable',
+    'Blowing on the cartridge',
+    'Recounting from one'
+  ];
+  var scanIndex = 0;
+
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    setInterval(function() {
+      if (isLive || showingPlayer) return;
+      scanIndex = (scanIndex + 1) % scanLines.length;
+      scanText.textContent = scanLines[scanIndex];
+    }, 3200);
+  }
 </script>
 </body>
 </html>
